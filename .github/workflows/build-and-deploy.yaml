@@ -86,34 +86,34 @@ jobs:
         run: |
           echo ::set-output name=image-${{ matrix.services.appName }}::${{ env.REGISTRY }}/$GITHUB_REPOSITORY/${{ matrix.services.appName }}:sha-${{ needs.set-env.outputs.version }} | tr '[:upper:]' '[:lower:]'
 
-  deploy:
-    if: github.repository != 'Azure-samples/container-apps-store-api-microservice'
-    runs-on: ubuntu-latest
-    needs: [package-services]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+  # deploy:
+  #   if: github.repository != 'Azure-samples/container-apps-store-api-microservice'
+  #   runs-on: ubuntu-latest
+  #   needs: [package-services]
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v2
 
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+  #     - name: Azure Login
+  #       uses: azure/login@v1
+  #       with:
+  #         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Deploy bicep
-        uses: azure/CLI@v1
-        with:
-          inlineScript: |
-            az group create -g ${{ secrets.RESOURCE_GROUP }} -l canadacentral
-            az deployment group create -g ${{ secrets.RESOURCE_GROUP }} -f ./deploy/main.bicep \
-             -p \
-                minReplicas=0 \
-                nodeImage='${{ needs.package-services.outputs.containerImage-node }}' \
-                nodePort=3000 \
-                pythonImage='${{ needs.package-services.outputs.containerImage-python }}' \
-                pythonPort=5000 \
-                goImage='${{ needs.package-services.outputs.containerImage-go }}' \
-                goPort=8050 \
-                containerRegistry=${{ env.REGISTRY }} \
-                containerRegistryUsername=${{ github.actor }} \
-                containerRegistryPassword=${{ secrets.GITHUB_TOKEN }} \
-                deployApim=false
+  #     - name: Deploy bicep
+  #       uses: azure/CLI@v1
+  #       with:
+  #         inlineScript: |
+  #           az group create -g ${{ secrets.RESOURCE_GROUP }} -l canadacentral
+  #           az deployment group create -g ${{ secrets.RESOURCE_GROUP }} -f ./deploy/main.bicep \
+  #            -p \
+  #               minReplicas=0 \
+  #               nodeImage='${{ needs.package-services.outputs.containerImage-node }}' \
+  #               nodePort=3000 \
+  #               pythonImage='${{ needs.package-services.outputs.containerImage-python }}' \
+  #               pythonPort=5000 \
+  #               goImage='${{ needs.package-services.outputs.containerImage-go }}' \
+  #               goPort=8050 \
+  #               containerRegistry=${{ env.REGISTRY }} \
+  #               containerRegistryUsername=${{ github.actor }} \
+  #               containerRegistryPassword=${{ secrets.GITHUB_TOKEN }} \
+  #               deployApim=false
